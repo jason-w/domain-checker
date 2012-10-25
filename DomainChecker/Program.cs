@@ -12,6 +12,7 @@ namespace DomainChecker
         private const string WORDLIST_FILE_PATH = "wordlist.txt";
         private const string OUTPUT_FILE_PATH = "output.txt";
         private const string IGNORE_FILE_PATH = "ignore.txt";
+        private const string TLD = ".io";
         
         private static List<string> words = new List<string>();
         private static Dictionary<string, string> ignoreList = new Dictionary<string, string>();
@@ -20,19 +21,17 @@ namespace DomainChecker
         {
             String line;
 
-            //if (File.Exists(IGNORE_FILE_PATH))
-            //{
-
-            //    using (StreamReader sr = new StreamReader(IGNORE_FILE_PATH))
-            //    {
-
-            //        while ((line = sr.ReadLine().Trim()) != null)
-            //        {
-            //            if (!ignoreList.Keys.Contains(line))
-            //                ignoreList.Add(line.Trim(), line);
-            //        }
-            //    }
-            //}
+            if (File.Exists(IGNORE_FILE_PATH))
+            {
+                using (StreamReader sr = new StreamReader(IGNORE_FILE_PATH))
+                {
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (!ignoreList.Keys.Contains(line.Trim()))
+                            ignoreList.Add(line.Trim(), line);
+                    }
+                }
+            }
 
             if (File.Exists(WORDLIST_FILE_PATH))
             {
@@ -61,7 +60,7 @@ namespace DomainChecker
                         ignoreWriter.WriteLine(word);
 
                         WebClient client = new WebClient();
-                        string result = client.DownloadString("http://dnsw.info/" + word +".io");
+                        string result = client.DownloadString(String.Format("http://dnsw.info/{0}{1}", word, TLD));
 
                         if (!result.Contains("Not available"))
                             outputWriter.WriteLine(word);
@@ -69,9 +68,6 @@ namespace DomainChecker
 
                 }
             }
-
-            Console.Write(words.Count);
-            Console.ReadLine();
         }
 
         
